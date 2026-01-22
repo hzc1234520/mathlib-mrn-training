@@ -190,17 +190,20 @@ class MRNTrainer:
             predicted_idx = metadata['selected_idx']
             
             if predicted_idx != target_idx:
-                # Simple gradient: move predicted embedding closer to target
+                # Simple contrastive gradient update:
+                # Pull target and predicted embeddings closer together in continuous space
+                # This encourages the discretized versions to match better
                 pred_embedding = self.embedding.get_embedding_by_idx(predicted_idx)
                 target_embedding = self.embedding.get_embedding_by_idx(target_idx)
                 
-                # Gradient for predicted (move away) - scaled by gradient_scale parameter
-                grad_pred = (pred_embedding - target_embedding) * self.gradient_scale
-                self.embedding.embeddings[predicted_idx] -= self.learning_rate * grad_pred
+                # Compute direction from predicted to target
+                direction = target_embedding - pred_embedding
                 
-                # Gradient for target (move closer) - scaled by gradient_scale parameter
-                grad_target = (target_embedding - pred_embedding) * self.gradient_scale
-                self.embedding.embeddings[target_idx] -= self.learning_rate * grad_target
+                # Move predicted toward target (scaled by gradient_scale parameter)
+                self.embedding.embeddings[predicted_idx] += self.learning_rate * self.gradient_scale * direction
+                
+                # Move target toward predicted (mutual attraction, scaled by gradient_scale)
+                self.embedding.embeddings[target_idx] -= self.learning_rate * self.gradient_scale * direction
             
             # Apply L2 regularization gradient
             _, reg_grad = EmbeddingGradient.compute_l2_regularization(
