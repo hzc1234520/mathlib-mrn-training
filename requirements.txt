@@ -1,8 +1,4 @@
 # Python dependencies for MRN implementation
 
-numpy
-scipy
-tensorflow
-keras
-pandas
-matplotlib
+numpy>=1.20.0
+scipy>=1.7.0
