@@ -134,16 +134,20 @@ class DerivationGraph:
         # Initialize scores for all symbols
         scores = np.zeros(num_symbols, dtype=float)
         
+        # Create a mapping from candidate vectors to indices for O(1) lookup
+        # Using tuple representation for hashable keys
+        candidate_map = {tuple(c.tolist()): j for j, c in enumerate(candidates)}
+        
         # Derive for each history state
         results = self.derivation.derive_batch(x_t, window, candidates)
         
-        # Aggregate scores
+        # Aggregate scores with optimized lookup
         for x_w, s, metadata in results:
-            # Find which symbol x_w corresponds to
-            for j, candidate in enumerate(candidates):
-                if np.array_equal(x_w, candidate):
-                    scores[j] += s
-                    break
+            # O(1) lookup using hash map
+            x_w_key = tuple(x_w.tolist())
+            if x_w_key in candidate_map:
+                j = candidate_map[x_w_key]
+                scores[j] += s
         
         # Average by K
         scores = scores / K

@@ -49,11 +49,13 @@ class LossFunction:
         """
         s_positive = scores[target_idx]
         
-        # Find max score among non-target symbols
-        s_negative_max = -np.inf
-        for i, s in enumerate(scores):
-            if i != target_idx and s > s_negative_max:
-                s_negative_max = s
+        # Find max score among non-target symbols (optimized with numpy)
+        mask = np.ones(len(scores), dtype=bool)
+        mask[target_idx] = False
+        if np.any(mask):
+            s_negative_max = np.max(scores[mask])
+        else:
+            s_negative_max = -np.inf
         
         loss = max(0.0, margin - s_positive + s_negative_max)
         return loss
@@ -115,7 +117,8 @@ class MRNTrainer:
                  learning_rate: float = 0.01,
                  lambda_contrastive: float = 1.0,
                  lambda_reg: float = 1e-5,
-                 margin: float = 1.0):
+                 margin: float = 1.0,
+                 gradient_scale: float = 0.1):
         """
         Initialize trainer
         
@@ -125,6 +128,7 @@ class MRNTrainer:
             lambda_contrastive: Weight for contrastive loss
             lambda_reg: Weight for L2 regularization
             margin: Margin for contrastive loss
+            gradient_scale: Scaling factor for embedding gradients (default: 0.1)
         """
         self.generator = generator
         self.embedding = generator.embedding
@@ -132,6 +136,7 @@ class MRNTrainer:
         self.lambda_contrastive = lambda_contrastive
         self.lambda_reg = lambda_reg
         self.margin = margin
+        self.gradient_scale = gradient_scale
         
         # Training statistics
         self.training_history = []
@@ -189,12 +194,12 @@ class MRNTrainer:
                 pred_embedding = self.embedding.get_embedding_by_idx(predicted_idx)
                 target_embedding = self.embedding.get_embedding_by_idx(target_idx)
                 
-                # Gradient for predicted (move away)
-                grad_pred = (pred_embedding - target_embedding) * 0.1
+                # Gradient for predicted (move away) - scaled by gradient_scale parameter
+                grad_pred = (pred_embedding - target_embedding) * self.gradient_scale
                 self.embedding.embeddings[predicted_idx] -= self.learning_rate * grad_pred
                 
-                # Gradient for target (move closer)
-                grad_target = (target_embedding - pred_embedding) * 0.1
+                # Gradient for target (move closer) - scaled by gradient_scale parameter
+                grad_target = (target_embedding - pred_embedding) * self.gradient_scale
                 self.embedding.embeddings[target_idx] -= self.learning_rate * grad_target
             
             # Apply L2 regularization gradient

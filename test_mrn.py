@@ -39,7 +39,8 @@ def test_modular_space():
     discrete = space.discretize(vec)
     assert discrete.shape == (n,), "Discrete vector shape mismatch"
     assert np.all(discrete >= 0) and np.all(discrete < m), "Values out of bounds"
-    expected = np.array([1, 3, 0, 0])  # round(1.4, 2.6, -0.3, 4.8) = (1, 3, 0, 5), then mod 5 = (1, 3, 0, 0)
+    # Expected: round gives [1, 3, 0, 5], then mod 5 gives [1, 3, 0, 0]
+    expected = np.array([1, 3, 0, 0])
     assert np.array_equal(discrete, expected), f"Discretization failed: {discrete} != {expected}"
     
     # Test addition
