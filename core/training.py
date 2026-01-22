@@ -8,7 +8,7 @@ for the MRN system.
 import numpy as np
 from typing import List, Tuple, Dict
 from .embedding import SymbolEmbedding, EmbeddingGradient
-from .sequence_generator import MRNGenerator
+from .sequence_generator import MRNGenerator, HistoryWindow
 
 
 class LossFunction:
@@ -310,6 +310,3 @@ class CurriculumLearning:
         # Reinitialize history window with new size
         generator.history = HistoryWindow(schedule['L'], generator.embedding.embedding_dim)
 
-
-# Import HistoryWindow for curriculum learning
-from .sequence_generator import HistoryWindow

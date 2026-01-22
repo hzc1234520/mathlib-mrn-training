@@ -11,7 +11,10 @@ This module tests all core components of the MRN system:
 
 import numpy as np
 import sys
-sys.path.insert(0, '/home/runner/work/mathlib-mrn-training/mathlib-mrn-training')
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core import (
     ModularSpace,

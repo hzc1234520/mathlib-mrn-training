@@ -28,14 +28,6 @@ The system is based on the complete mathematical theory described in the include
 5. **MRNGenerator**: Complete sequence generation with dual-channel memory
 6. **MRNTrainer**: Training with multiple loss functions and teacher forcing
 
-## Architecture Components
-1. **ModularSpace**: Operations in Z_m^n (discretization, addition, matrix multiplication)
-2. **ExactMatcher**: Exact matching functions (match, best, top_m)
-3. **SymbolEmbedding**: Trainable embedding matrix E ∈ R^{N×n}
-4. **TwoStepDerivation**: Two-step derivation with intermediate matching
-5. **MRNGenerator**: Complete sequence generation with dual-channel memory
-6. **MRNTrainer**: Training with multiple loss functions and teacher forcing
-
 ## Installation
 To get started with this project, clone the repository and install the necessary dependencies:
 
